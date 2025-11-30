@@ -17,12 +17,10 @@ export default defineConfig({
   // =======================================================
   server: {
     proxy: {
-      // Когда фронтенд запрашивает что-то по пути /api (например, /api/auth/login)
+      // Проксируем /api без переписывания пути, чтобы Spring видел /api/...
       '/api': {
-        // Он перенаправляется на бэкенд (http://localhost:8080/auth/login)
         target: 'http://localhost:8080',
-        changeOrigin: true, // Для корректной работы заголовков
-        rewrite: (path) => path.replace(/^\/api/, '') // Удаляем /api из пути перед отправкой на бэкенд
+        changeOrigin: true,
       }
     }
   }

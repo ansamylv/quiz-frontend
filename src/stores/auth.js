@@ -1,6 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+const buildFullName = (firstName, lastName, middleName) => {
+  return [firstName, lastName, middleName]
+    .filter(Boolean)
+    .join(' ')
+    .trim()
+}
+
 export const useAuthStore = defineStore('auth', () => {
   // 1. Состояние (State) - читаем из LocalStorage при запуске
   const userCode = ref(localStorage.getItem('userCode') || null)
@@ -11,10 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
   // 2. Геттеры (Getters) - вычисляемые значения
   const isAuthenticated = ref(!!userCode.value)
 
-  const fullName = ref(
-    // Формируем полное имя: Фамилия Имя Отчество
-    `${lastName.value || ''} ${firstName.value || ''} ${middleName.value || ''}`.trim()
-  );
+  const fullName = ref(buildFullName(firstName.value, lastName.value, middleName.value))
 
   // 3. Действия (Actions)
 
@@ -25,7 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
     lastName.value = lName
     middleName.value = mName
     isAuthenticated.value = true
-    fullName.value = `${lName || ''} ${fName || ''} ${mName || ''}`.trim();
+    fullName.value = buildFullName(fName, lName, mName);
 
     // Сохраняем в localStorage для сохранения сессии при перезагрузке
     localStorage.setItem('userCode', code)

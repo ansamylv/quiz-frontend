@@ -21,6 +21,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+      },
+      // Проксируем публичные ссылки /test/... для пробного прохождения
+      '/test': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
       }
     }
   }

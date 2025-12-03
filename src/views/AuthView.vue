@@ -32,11 +32,6 @@
         >
         <input
           type="text"
-          v-model="authData.middleName"
-          placeholder="Отчество (необязательно)"
-        >
-        <input
-          type="text"
           v-model="authData.code"
           placeholder="Придумайте код (логин)"
           required
@@ -74,15 +69,14 @@ const successMessage = ref('');
 const authData = reactive({
     code: '',
     firstName: '',
-    lastName: '',
-    middleName: ''
+    lastName: ''
 });
 
 const toggleMode = () => {
     isLoginMode.value = !isLoginMode.value;
     error.value = '';
     successMessage.value = '';
-    Object.assign(authData, { code: '', firstName: '', lastName: '', middleName: '' });
+    Object.assign(authData, { code: '', firstName: '', lastName: '' });
 };
 
 // =================================================================
@@ -141,8 +135,7 @@ const handleRegister = async () => {
         const response = await axios.post('/api/auth/register/teacher', {
             code: authData.code,
             firstName: authData.firstName,
-            lastName: authData.lastName,
-            middleName: authData.middleName, // Может быть null
+            lastName: authData.lastName
         });
 
         // Бэкенд должен вернуть ответ, сигнализирующий об успехе
@@ -153,7 +146,7 @@ const handleRegister = async () => {
 
         // Сохраняем введенный код и переключаемся на вход
         const registeredCode = authData.code;
-        Object.assign(authData, { code: registeredCode, firstName: '', lastName: '', middleName: '' });
+        Object.assign(authData, { code: registeredCode, firstName: '', lastName: '' });
         isLoginMode.value = true;
 
     } catch (err) {

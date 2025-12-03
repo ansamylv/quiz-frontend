@@ -199,6 +199,14 @@
           </button>
 
           <button
+            v-if="isPublished && publicLink"
+            @click="handleTryTest"
+            class="btn try-btn"
+          >
+            🔍 Опробовать как ученик
+          </button>
+
+          <button
             v-if="isPublished && isActive"
             @click="handleCompleteTest"
             :disabled="isCompleting"
@@ -218,11 +226,12 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import axios from 'axios';
 
 const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
 
 const testId = route.params.id;
@@ -480,6 +489,13 @@ const handleCompleteTest = async () => {
   } finally {
     isCompleting.value = false;
   }
+};
+
+const handleTryTest = () => {
+  if (!publicLink.value) {
+    return;
+  }
+  router.push({ name: 'test-try', params: { link: publicLink.value } });
 };
 
 const cancelEdit = () => {

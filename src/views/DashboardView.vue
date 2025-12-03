@@ -89,6 +89,14 @@
               <button @click="handleEditTest(test)" class="icon-btn" title="Редактировать">✏️</button>
               <button @click="handleViewStats(test)" class="icon-btn" title="Статистика">📊</button>
               <button
+                @click="handleTryTest(test)"
+                class="icon-btn"
+                :disabled="test.status !== 'ACTIVE' || !test.publicLink"
+                title="Опробовать как ученик"
+              >
+                🔍
+              </button>
+              <button
                 @click="handleFinishTest(test)"
                 class="icon-btn finish"
                 :disabled="test.status !== 'ACTIVE'"
@@ -109,7 +117,7 @@
           </article>
         </div>
         <p class="action-legend">
-          ✏️ — редактировать тест · 📊 — посмотреть результаты · ✅ — завершить тест (делает его неактивным) · 🔗 — скопировать ссылку · 🗑️ — удалить тест полностью
+          ✏️ — редактировать тест · 📊 — посмотреть результаты · 🔍 — опробовать тест как ученик · ✅ — завершить тест (делает его неактивным) · 🔗 — скопировать ссылку · 🗑️ — удалить тест полностью
         </p>
         </section>
 
@@ -375,6 +383,17 @@ const handleFinishTest = async (test) => {
     console.error('Ошибка завершения теста:', err);
     showToast('Не удалось завершить тест', 'error');
   }
+};
+
+const handleTryTest = (test) => {
+  if (!test.publicLink || test.status !== 'ACTIVE') {
+    return;
+  }
+  router.push({
+    name: 'test-try',
+    params: { link: test.publicLink },
+    query: { testId: test.id }
+  });
 };
 
 const handleLogout = () => {
@@ -948,4 +967,5 @@ onMounted(fetchDashboardData);
   }
 }
 </style>
+
 

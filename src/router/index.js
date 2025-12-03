@@ -4,7 +4,8 @@ import { useAuthStore } from '@/stores/auth'
 // Импорт компонентов
 import AuthView from '../views/AuthView.vue'
 import DashboardView from '../views/DashboardView.vue'
-import TestEditView from '../views/TestEditView.vue' // <-- НОВЫЙ КОМПОНЕНТ
+import TestEditView from '../views/TestEditView.vue'
+import TestTryView from '../views/TestTryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,12 @@ const router = createRouter({
       path: '/tests/:id/edit',
       name: 'test-edit',
       component: TestEditView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/tests/:link/try',
+      name: 'test-try',
+      component: TestTryView,
       meta: { requiresAuth: true }
     },
     // Перенаправление с корня на /dashboard, если авторизован

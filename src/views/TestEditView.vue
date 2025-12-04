@@ -6,7 +6,7 @@
       </router-link>
 
       <div class="page-header">
-        <h1>Редактирование теста №{{ testId }}</h1>
+        <h1>Редактирование теста «{{ testTitle }}»</h1>
       </div>
 
       <div v-if="testDetailsLoading" class="info-banner">Загрузка данных теста...</div>
@@ -219,6 +219,38 @@
             ⏹️ Тест завершен. Ученики больше не могут его проходить.
           </p>
         </div>
+
+        <div class="test-stats-section" v-if="statsLoaded">
+          <h2>Результаты по тесту</h2>
+          <div class="stats-summary">
+            <p><strong>Всего прохождений:</strong> {{ testStats.completedSessions }}</p>
+            <p><strong>Активных сессий:</strong> {{ testStats.activeSessions }}</p>
+            <p><strong>Средний результат:</strong> {{ Math.round(testStats.averageScore) }}%</p>
+          </div>
+
+          <div v-if="testStats.studentResults && testStats.studentResults.length" class="stats-table-wrapper">
+            <table class="stats-table">
+              <thead>
+                <tr>
+                  <th>Студент</th>
+                  <th>Группа</th>
+                  <th>Результат, %</th>
+                  <th>Дата прохождения</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="res in testStats.studentResults" :key="res.studentName + res.completedAt">
+                  <td>{{ res.studentName }}</td>
+                  <td>{{ res.group }}</td>
+                  <td>{{ Math.round(res.score) }}</td>
+                  <td>{{ formatDateTime(res.completedAt) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p v-else class="no-questions">Пока нет завершённых прохождений этого теста.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -259,6 +291,16 @@ const newQuestion = ref({
 
 const testDetailsLoading = ref(false);
 const testDetailsError = ref(null);
+
+const testStatsLoading = ref(false);
+const testStatsError = ref(null);
+const testStats = ref({
+  completedSessions: 0,
+  activeSessions: 0,
+  averageScore: 0,
+  studentResults: []
+});
+const statsLoaded = ref(false);
 
 const getStatusText = () => {
   if (!isPublished.value) return 'Черновик';
@@ -339,6 +381,28 @@ const fetchTestDetails = async () => {
     testTitle.value = "Ошибка загрузки";
   } finally {
     testDetailsLoading.value = false;
+  }
+  fetchTestStats();
+};
+
+const fetchTestStats = async () => {
+  testStatsLoading.value = true;
+  testStatsError.value = null;
+  statsLoaded.value = false;
+
+  try {
+    const response = await axios.get(`/api/tests/${testId}/stats`, {
+      params: {
+        teacherCode: authStore.userCode
+      }
+    });
+    testStats.value = response.data;
+    statsLoaded.value = true;
+  } catch (err) {
+    console.error('Ошибка загрузки статистики теста:', err);
+    testStatsError.value = err.response?.data?.message || 'Не удалось загрузить статистику.';
+  } finally {
+    testStatsLoading.value = false;
   }
 };
 
@@ -513,6 +577,14 @@ const copyPublicLink = async () => {
   } catch {
     alert('Не удалось скопировать ссылку');
   }
+};
+
+const formatDateTime = (isoString) => {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  const dd = d.toLocaleDateString();
+  const tt = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return `${dd} ${tt}`;
 };
 
 onMounted(fetchTestDetails);
